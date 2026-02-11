@@ -5,12 +5,17 @@ import country_api
 def main():
     while True:
         code = input('Enter country code or press enter to quit ')
-        # TODO check code is 2 letters 
-        # TODO end the loop if user presses enter
-        found, name, error = country_api.get_country_name(code)
+        if not code:
+            break
+        if len(code) != 2:
+            print('Country code must be 2 letters')
+            continue
+        found, country_info, error = country_api.get_country_name(code)
         
         if found:
+            name, capital = country_info
             print(f'{code} is the country code for {name}')
+            print(f'Capital: {capital}')
         elif not found and not error:
             print('No country found for that code')
         else:

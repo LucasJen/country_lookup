@@ -7,29 +7,33 @@ def get_country_name(country_code):
     If there is an error connecting to the API. the tuple will be (False, None, error message)"""
 
     try:
-        url = create_url(country_code)
-        json_response = make_api_request(url)
-        if not json_response:
-             return False, None, None 
-        name = get_name_from_response(json_response)
-        return True, name, None
+        country_api_url = create_url(country_code)
+        country_data_response = make_api_request(country_api_url)
+        if not country_data_response:
+            return False, None, None
+        country_official_name, country_capital = get_name_from_response(country_data_response)
+        return True, (country_official_name, country_capital), None
     except Exception as e:
         return False, None, 'Error connecting to API'
 
 def create_url(country_code):
-    url = f'https://restcountries.com/v3.1/alpha/{country_code}'
-    return url
+    country_api_url = f'https://restcountries.com/v3.1/alpha/{country_code}'
+    return country_api_url
 
 
 def make_api_request(url):
-    response = requests.get(url)
-    if response.status_code == 404:
+    api_response = requests.get(url)
+    if api_response.status_code == 404:
         return None
-    response.raise_for_status()
-    json = response.json()  
-    return json
+    api_response.raise_for_status()
+    response_json_data = api_response.json()  
+    return response_json_data
 
 
 def get_name_from_response(json_response):
-    name = json_response[0]['name']['official']
-    return name
+    try:
+        country_official_name = json_response[0]['name']['official']
+        country_capital = json_response[0].get('capital', ['Unknown'])[0]
+        return country_official_name, country_capital
+    except (IndexError, KeyError):
+        return None, None
